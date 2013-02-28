@@ -38,24 +38,31 @@ class Counter{
         int count() { return this->_count; }
 };
 
-void count_to(sync::Lockable<Counter> &counter){
-    for(size_t i=0; i < 10000000; ++i){
-        synchronized(counter){
-            counter.inc();
+void count_to(mysync::Lockable<Counter> &counter, int raise_on){
+    try {
+        for(int i=0; i < 10000000; ++i){
+            synchronized(counter){
+                if (i == raise_on){
+                    throw i;
+                }
+                counter.inc();
+            }
         }
+    } catch (int i) {
+        std::cout << "exception occurred with value: " << i << std::endl;
     }
 }
 
 int main(){
-    sync::Lockable<Person> lp(2, "jane");
+    mysync::Lockable<Person> lp(2, "jane");
     synchronized(lp){
         lp.show();
     }
     
-    sync::Lockable<Counter> lc;
+    mysync::Lockable<Counter> lc;
 
-    std::thread t1(count_to, std::ref(lc));
-    std::thread t2(count_to, std::ref(lc));
+    std::thread t1(count_to, std::ref(lc), 100);
+    std::thread t2(count_to, std::ref(lc), -1);
 
     t1.join();
     t2.join();

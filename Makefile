@@ -1,5 +1,6 @@
-CC = g++
-CPPFLAGS = -Wall -Wextra -pedantic -std=c++11
+LINK.o = $(LINK.cc)
+CXX = g++
+CXXFLAGS = -Wall -Wextra -std=c++11 -g
 LDFLAGS = -pthread
 
 
