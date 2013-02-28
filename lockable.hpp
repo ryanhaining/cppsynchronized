@@ -3,14 +3,18 @@
 
 #include <mutex>
 
-namespace mysync{
+namespace synclock{
 
-    template <class Parent>
-    class Lockable : public Parent, public std::mutex{
+    template <class Enclosed>
+    class Lockable : public Enclosed, public std::mutex{
         public:
-            // pass any arguments to Parent class constructor
+            // pass any arguments to Enclosed class constructor
             template <typename... Ts>
-            Lockable(Ts... params): Parent(params...) {}
+            Lockable(Ts... params): Enclosed(params...) {}
+            // create Lockable from nonlockable.  the behavior of this
+            // completely depends on how the Enclosed class's copy
+            // constructor is defined.
+            Lockable(const Enclosed & other): Enclosed(other) {}
             ~Lockable(){}
 
             // these functions should only be used by the synchronized
@@ -30,16 +34,16 @@ namespace mysync{
 
     // this class should only be used by the synchronized macro
     template <class Contained>
-    class Locker{
+    class _Locker{
         private:
             Contained & lockable;
         public:
             bool finished;
-            Locker(Contained & obj): lockable(obj), finished(false) {
+            _Locker(Contained & obj): lockable(obj), finished(false) {
                 // on construction, lock the contained object
                 this->lockable._lockable_sync_lock();
             }
-            ~Locker() {
+            ~_Locker() {
                 // on destruction, unlock it.  This will occur on for-loop
                 // exit and in the event that an exception occurs
                 this->lockable._lockable_sync_unlock();
@@ -47,10 +51,28 @@ namespace mysync{
     };
 }
 
-#define synchronized(OBJ)  \
-    for(mysync::Locker<decltype(OBJ)> _locker_obj(OBJ); \
+
+// for loop creates a Locker, which locks the LKBLEOBJ given
+// the condition checks if the Locker::finished variable is true. initially,
+// it is false, so the body of the loop is executed
+// the for loop sets the finished variable to true, causing the condition to
+// fail and the loop to exit
+// this triggers the destruction of the Locker which unlocks the LKBLEOBJ
+// since destruction will also occur on exception, this is exception safe.
+// once the synchronized block is exited, the LKBLEOBJ is guaranteed to be in
+// an unlocked state
+#define synchronized(LKBLEOBJ)  \
+    for(synclock::_Locker<decltype(LKBLEOBJ)> _locker_obj(LKBLEOBJ); \
         !_locker_obj.finished; \
         _locker_obj.finished = true)
+
+
+// example usage:
+//
+// synclock::Lockable<Person> jane;
+// synchronized(jane){
+//     //critical section
+// }
 
 #if 0
 // exception-unsafe version

@@ -17,9 +17,17 @@ class Person{
     public:
         Person(int age, std::string name):
             age(age),
-            name(name){
-            }
+            name(name) { }
+#if 0
+        Person(const Person & other) {
+            this->age = other.age;
+            this->name = other.name;
+        }
+#endif
         
+        void set_name(std::string name){
+            this->name = name;
+        }
         void show(){
             std::cout << this->age << ' ' << this->name << std::endl;
         }
@@ -29,6 +37,7 @@ class Person{
 
 };
 
+// a wrapper for an int.  using a .inc() function to do ++
 class Counter{
     private:
         int _count;
@@ -38,7 +47,7 @@ class Counter{
         int count() { return this->_count; }
 };
 
-void count_to(mysync::Lockable<Counter> &counter, int raise_on){
+void count_to(synclock::Lockable<Counter> &counter, int raise_on){
     try {
         for(int i=0; i < 10000000; ++i){
             synchronized(counter){
@@ -54,20 +63,25 @@ void count_to(mysync::Lockable<Counter> &counter, int raise_on){
 }
 
 int main(){
-    mysync::Lockable<Person> lp(2, "jane");
+    Person bill(18, "bill");
+    synclock::Lockable<Person> lp(2, "jane");
     synchronized(lp){
         lp.show();
     }
-    
-    mysync::Lockable<Counter> lc;
 
-    std::thread t1(count_to, std::ref(lc), 100);
+    bill.show();
+    synclock::Lockable<Person> lockable_bill(bill);
+    lockable_bill.set_name("william");
+    bill.show();
+    
+    synclock::Lockable<Counter> lc;
+
+    std::thread t1(count_to, std::ref(lc), -1);
     std::thread t2(count_to, std::ref(lc), -1);
 
     t1.join();
     t2.join();
     std::cout << lc.count() << std::endl;
-
 
     return 0;
 }
