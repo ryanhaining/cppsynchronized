@@ -66,8 +66,8 @@ namespace synclock{
 
 // example usage:
 //
-// Lockable<Person> & jane;
-// void threaded_function(Lockable<Person> p){
+// Lockable<Person> jane;
+// void threaded_function(Lockable<Person> & p){
 //     synchronized(p){
 //         //critical section
 //     }
