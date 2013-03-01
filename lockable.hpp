@@ -5,31 +5,23 @@
 
 namespace synclock{
 
+    // Creating a Lockable<Type> object will result in an object
+    // subclassing Type and std::mutex.  This yields and object with
+    // the original Type's member functions with the additional .lock(), 
+    // .unlock() and .try_lock() member functions.
     template <class Enclosed>
     class Lockable : public Enclosed, public std::mutex{
         public:
             // pass any arguments to Enclosed class constructor
             template <typename... Ts>
             Lockable(Ts... params): Enclosed(params...) {}
+
             // create Lockable from nonlockable.  the behavior of this
             // completely depends on how the Enclosed class's copy
             // constructor is defined.
             Lockable(const Enclosed & other): Enclosed(other) {}
+
             ~Lockable(){}
-
-            // these functions should only be used by the synchronized
-            // macro.  Use the normal lock() and unlock() functions for
-            // your own purposes outside the synchronized block.
-            // Their behavior/return types are not guaranteed
-            int _lockable_sync_lock(){
-                this->std::mutex::lock();
-                return 0;
-            }
-
-            int _lockable_sync_unlock(){
-                this->std::mutex::unlock();
-                return 0;
-            }
     };
 
     // this class should only be used by the synchronized macro
@@ -41,16 +33,21 @@ namespace synclock{
             bool finished;
             _Locker(Contained & obj): lockable(obj), finished(false) {
                 // on construction, lock the contained object
-                this->lockable._lockable_sync_lock();
+                this->lockable.lock();
             }
             ~_Locker() {
                 // on destruction, unlock it.  This will occur on for-loop
                 // exit and in the event that an exception occurs
-                this->lockable._lockable_sync_unlock();
+                this->lockable.unlock();
             }
     };
 }
 
+
+// synchronize(object){ critical_section }
+// similar to javas synchronized block, the object will be locked at the start
+// of the block and unlocked at the end of the block to provide safety
+// across threads
 
 // for loop creates a Locker, which locks the LKBLEOBJ given
 // the condition checks if the Locker::finished variable is true. initially,
@@ -69,17 +66,10 @@ namespace synclock{
 
 // example usage:
 //
-// synclock::Lockable<Person> jane;
-// synchronized(jane){
-//     //critical section
-// }
-
-#if 0
-// exception-unsafe version
-#define synchronized(OBJ) \
-    for(int _i_lock_val = OBJ._lockable_sync_lock();\
-        _i_lock_val == 0; \
-        OBJ._lockable_sync_unlock(), ++_i_lock_val)
-#endif
+// Lockable<Person> jane;
+// void threaded_function(Lockable<Person> p){
+//     synchronized(p){
+//         //critical section
+//     }
 
 #endif // ifndef __LOCKABLE__H__

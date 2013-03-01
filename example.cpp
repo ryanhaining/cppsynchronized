@@ -52,7 +52,7 @@ void count_to(synclock::Lockable<Counter> &counter, int raise_on){
         for(int i=0; i < 10000000; ++i){
             synchronized(counter){
                 if (i == raise_on){
-                    throw i;
+                    throw i; // show exception safety
                 }
                 counter.inc();
             }
@@ -72,7 +72,7 @@ int main(){
     bill.show();
     synclock::Lockable<Person> lockable_bill(bill);
     lockable_bill.set_name("william");
-    bill.show();
+    bill.show(); //this will NOT print william
     
     synclock::Lockable<Counter> lc;
 
