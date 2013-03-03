@@ -18,12 +18,10 @@ class Person{
         Person(int age, std::string name):
             age(age),
             name(name) { }
-#if 0
         Person(const Person & other) {
             this->age = other.age;
             this->name = other.name;
         }
-#endif
         
         void set_name(std::string name){
             this->name = name;
@@ -76,7 +74,12 @@ int main(){
     
     synclock::Lockable<Counter> lc;
 
-    std::thread t1(count_to, std::ref(lc), -1);
+    synchronized(lc){
+        synchronized(lp){
+            std::cout << "proper nesting" << std::endl;
+        }
+    }
+    std::thread t1(count_to, std::ref(lc), 100000);
     std::thread t2(count_to, std::ref(lc), -1);
 
     t1.join();

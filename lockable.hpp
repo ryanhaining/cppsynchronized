@@ -9,6 +9,9 @@ namespace synclock{
     // subclassing Type and std::mutex.  This yields and object with
     // the original Type's member functions with the additional .lock(), 
     // .unlock() and .try_lock() member functions.
+    // 
+    // Valid arguments to the Lockable<Type> constructor are any arguments
+    // that the Type constructor can handle.
     template <class Enclosed>
     class Lockable : public Enclosed, public std::mutex{
         public:
