@@ -25,7 +25,8 @@ void global_count_to(int & counter, int throw_on)
                 if (throw_on == i){
                     throw i;
                 }
-                int a = counter;
+                //elongated increment to allow more interleaving
+                int a = counter; 
                 a = a + 1;
                 counter = a;
             }

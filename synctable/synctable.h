@@ -33,6 +33,7 @@ namespace synclock{
         private:
             SyncTable & synchronizer;
             void * addr;
+
         public:
             bool finished;
             _Table_Locker(SyncTable & sync, void * addr);
