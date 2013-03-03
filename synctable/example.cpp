@@ -4,18 +4,9 @@
 #include <thread>
 #include <utility>
 
-#if 0
 
-void count_to(synclock::SyncTable &syncer, int &counter, int raise_on){
-    for(int i=0; i < 10000000; ++i){
-        synchronized(syncer, &counter){
-            counter++;
-        }
-    }
-}
-#endif
-
-void count_to(synclock::SyncTable & syncer, int & counter){
+void count_to(synclock::SyncTable & syncer, int & counter)
+{
     for(int i=0; i < 100000; ++i){
         tablesynchronized(syncer, &counter){
             int a = counter;
@@ -25,13 +16,22 @@ void count_to(synclock::SyncTable & syncer, int & counter){
     }
 }
 
-void global_count_to(int & counter){
-    for(int i=0; i < 100000; ++i){
-        synchronized(&counter){
-            int a = counter;
-            a = a + 1;
-            counter = a;
+
+void global_count_to(int & counter, int throw_on)
+{
+    try {
+        for(int i=0; i < 100000; ++i){
+            synchronized(&counter){
+                if (throw_on == i){
+                    throw i;
+                }
+                int a = counter;
+                a = a + 1;
+                counter = a;
+            }
         }
+    } catch (int i) {
+        std::cout << "exception occurred with value: " << i << std::endl;
     }
 }
 
@@ -49,14 +49,15 @@ int main(){
     t2.join();
     std::cout << i << std::endl;
 
-    // global sync
+    // global sync (the cool one)
     i = 0;
 
-    std::thread t3(global_count_to, std::ref(i));
-    std::thread t4(global_count_to, std::ref(i));
+    std::thread t3(global_count_to, std::ref(i), 50000);
+    std::thread t4(global_count_to, std::ref(i), -1);
 
     t3.join();
     t4.join();
     std::cout << i << std::endl;
     return 0;
 }
+

@@ -1,3 +1,5 @@
+// contains
+
 #ifndef __SYNCHRONIZER__H__
 #define __SYNCHRONIZER__H__
 
@@ -23,7 +25,10 @@ namespace synclock{
             ~SyncTable();
  
     };
-
+    
+    // This class is only for use by the synchronized/tablesynchronized blocks
+    // and should not be used directly.  The name of the class is
+    // intentionlly poorly formed.
     class _Table_Locker{
         private:
             SyncTable & synchronizer;
@@ -34,6 +39,7 @@ namespace synclock{
             ~_Table_Locker();
     };
 
+    // global table for use in synchronized blocks
     extern SyncTable globalsynctable;
 }
 
@@ -52,6 +58,13 @@ for(synclock::_Table_Locker _table_locker_obj(TABLE, (void*)(ADDR)); \
         !_table_locker_obj.finished; \
         _table_locker_obj.finished = true)
 
+
+// synchronized(&var) { critical section }
+//
+// synchronized blocks construct a _Table_Locker on entry and destroy it
+// on exit.  This results in a locking of var for the body of the block.
+// It is also exception safe since destructon occurs when an exception
+// causes the block to exit
 #define synchronized(ADDR)  \
 for(synclock::_Table_Locker _table_locker_obj(synclock::globalsynctable, (void*)(ADDR)); \
         !_table_locker_obj.finished; \
