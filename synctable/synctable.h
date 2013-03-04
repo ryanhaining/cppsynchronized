@@ -12,8 +12,7 @@ namespace synclock{
         private:
             std::map<void *, std::mutex *> locks_table;
             std::mutex table_lock; 
-            void lock_address(void *addr);
-            void unlock_address(void *addr);
+            std::mutex * get_lock_address(void *addr);
 
         public:
             SyncTable(){}
@@ -32,7 +31,7 @@ namespace synclock{
     class _Table_Locker{
         private:
             SyncTable & synchronizer;
-            void * addr;
+            std::mutex *var_lock;
 
         public:
             bool finished;
