@@ -3,14 +3,14 @@
 #ifndef __SYNCHRONIZER__H__
 #define __SYNCHRONIZER__H__
 
-#include <map>
+#include <unordered_map>
 #include <mutex>
 
 namespace synclock{
     class SyncTable{
         friend class _Table_Locker;
         private:
-            std::map<void *, std::mutex *> locks_table;
+            std::unordered_map<void *, std::mutex *> locks_table;
             std::mutex table_lock; 
             std::mutex * get_lock_address(void *addr);
 
