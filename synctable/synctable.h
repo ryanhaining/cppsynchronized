@@ -1,5 +1,3 @@
-// contains
-
 #ifndef __SYNCHRONIZER__H__
 #define __SYNCHRONIZER__H__
 
@@ -43,6 +41,9 @@ namespace synclock{
     extern SyncTable globalsynctable;
 }
 
+// the _Table_Lockers have a bunch of capital letters on the end of them
+// to (try to) ensure there are no collisions
+
 // tablesynchronized(synctable, &var) { critical section }
 //
 // tablesynchronized block takes in a table and an address, locking the
@@ -54,9 +55,9 @@ namespace synclock{
 // destruction
 
 #define tablesynchronized(TABLE, ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj(TABLE, (void*)(ADDR)); \
-        !_table_locker_obj.finished; \
-        _table_locker_obj.finished = true)
+for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(TABLE, (void*)(ADDR)); \
+        !_table_locker_obj_ABCDEFAOEUI.finished; \
+        _table_locker_obj_ABCDEFAOEUI.finished = true)
 
 
 // synchronized(&var) { critical section }
@@ -66,8 +67,8 @@ for(synclock::_Table_Locker _table_locker_obj(TABLE, (void*)(ADDR)); \
 // It is also exception safe since destructon occurs when an exception
 // causes the block to exit
 #define synchronized(ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj(synclock::globalsynctable, (void*)(ADDR)); \
-        !_table_locker_obj.finished; \
-        _table_locker_obj.finished = true)
+for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(synclock::globalsynctable, (void*)(ADDR)); \
+        !_table_locker_obj_ABCDEFAOEUI.finished; \
+        _table_locker_obj_ABCDEFAOEUI.finished = true)
 
 #endif // __SYNCHRONIZER__H__
