@@ -16,11 +16,14 @@ synclock::SyncTable::~SyncTable()
 std::mutex * synclock::SyncTable::get_lock_address(void *addr)
 {
     this->table_lock.lock(); // lock the table itself
-    if(this->locks_table.find(addr)== this->locks_table.end()){
-        // this is a new entry in the table and a mutex must be created
-        this->locks_table[addr] = new std::mutex;
+    auto itr = this->locks_table.find(addr);
+    if (itr == this->locks_table.end()) {
+        // this is a new entry, in the table and a mutex must be created
+        itr = this->locks_table.insert(
+                std::make_pair(addr, new std::mutex)).first;
     }
-    std::mutex *var_lock = this->locks_table[addr]; // get the variable's lock
+
+    std::mutex *var_lock = itr->second; // get the variable's lock
     this->table_lock.unlock(); // unlock the table
 
     return var_lock;
