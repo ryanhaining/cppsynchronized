@@ -4,6 +4,7 @@
 #include <thread>
 #include <utility>
 
+#define DONT_THROW -1
 
 void count_to(synclock::SyncTable & syncer, int & counter)
 {
@@ -54,7 +55,7 @@ int main(){
     i = 0;
 
     std::thread t3(global_count_to, std::ref(i), 50000);
-    std::thread t4(global_count_to, std::ref(i), -1);
+    std::thread t4(global_count_to, std::ref(i), DONT_THROW);
 
     t3.join();
     t4.join();
