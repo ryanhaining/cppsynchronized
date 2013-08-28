@@ -67,7 +67,7 @@ for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(TABLE, (void*)(ADDR));
 // It is also exception safe since destructon occurs when an exception
 // causes the block to exit
 #define synchronized(ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(synclock::globalsynctable, (void*)(ADDR)); \
+for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(synclock::globalsynctable, static_cast<void *>(ADDR)); \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 
