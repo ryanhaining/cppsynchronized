@@ -33,6 +33,8 @@ namespace synclock{
         public:
             bool finished;
             _Table_Locker(SyncTable &sync_table, void * addr);
+            _Table_Locker(const _Table_Locker &) = delete;
+            _Table_Locker & operator=(const _Table_Locker &) = delete;
             ~_Table_Locker();
     };
 
