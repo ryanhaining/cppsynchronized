@@ -34,8 +34,8 @@ namespace synclock {
 
     // _Table_Locker
 
-    _Table_Locker::_Table_Locker(SyncTable & sync, void * addr)
-        : var_lock_holder(*sync.get_lock_address(addr)),
+    _Table_Locker::_Table_Locker(SyncTable & sync_table, void * addr)
+        : var_lock_holder(*sync_table.get_lock_address(addr)),
         finished(false)
     { }
 
