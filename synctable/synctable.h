@@ -28,12 +28,11 @@ namespace synclock{
     // intentionlly poorly formed.
     class _Table_Locker{
         private:
-            SyncTable & synchronizer;
-            std::mutex *var_lock;
+            std::lock_guard<std::mutex> var_lock_holder;
 
         public:
             bool finished;
-            _Table_Locker(SyncTable & sync, void * addr);
+            _Table_Locker(SyncTable &sync_table, void * addr);
             ~_Table_Locker();
     };
 

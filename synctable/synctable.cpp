@@ -33,20 +33,12 @@ std::mutex * synclock::SyncTable::get_lock_address(void *addr)
 // _Table_Locker
 
 synclock::_Table_Locker::_Table_Locker(SyncTable & sync, void * addr)
-    : synchronizer(sync), finished(false)
-{
-        // on construction, lock the contained object
-        this->var_lock = this->synchronizer.get_lock_address(addr);
-        this->var_lock->lock();
-}
+    : var_lock_holder(*sync.get_lock_address(addr)),
+      finished(false)
+{ }
 
 
-synclock::_Table_Locker::~_Table_Locker()
-{
-    // on destruction, unlock it.  This will occur on for-loop
-    // exit and in the event that an exception occurs
-    this->var_lock->unlock();
-}
+synclock::_Table_Locker::~_Table_Locker() { }
 
 
 namespace synclock{
