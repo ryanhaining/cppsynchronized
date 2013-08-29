@@ -22,27 +22,10 @@ namespace synclock{
             std::mutex * get_lock_address(void *addr);
     };
     
-    // This class is only for use by the synchronized/tablesynchronized blocks
-    // and should not be used directly.  The name of the class is
-    // intentionlly poorly formed.
-    class _Table_Locker{
-        private:
-            std::lock_guard<std::mutex> var_lock_holder;
-
-        public:
-            bool finished;
-            _Table_Locker(SyncTable &sync_table, void * addr);
-            _Table_Locker(const _Table_Locker &) = delete;
-            _Table_Locker & operator=(const _Table_Locker &) = delete;
-            ~_Table_Locker();
-    };
-
     // global table for use in synchronized blocks
     extern SyncTable globalsynctable;
 }
 
-// the _Table_Lockers have a bunch of capital letters on the end of them
-// to (try to) ensure there are no collisions
 
 // tablesynchronized(synctable, &var) { critical section }
 //
@@ -51,27 +34,39 @@ namespace synclock{
 // this is provided so that groups of unrelated threads do not result in a
 // large, slow, globalsynctable.
 // using a value in a local SyncTable will NOT add it to tho global synctable
-// this is exception safe since the _Table_Locker releases the lock on
+// this is exception safe since the lock_guard releases the lock on
 // destruction
 
 #define tablesynchronized(TABLE, ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(TABLE, (void*)(ADDR)); \
-        !_table_locker_obj_ABCDEFAOEUI.finished; \
-        _table_locker_obj_ABCDEFAOEUI.finished = true)
+for(struct { \
+        const std::lock_guard<std::mutex> & lg; \
+        bool finished; \
+        } pair = \
+            { \
+            std::lock_guard<std::mutex>( \
+                *TABLE.get_lock_address( \
+                    static_cast<void *>(ADDR))), \
+            false }; \
+        !pair.finished; \
+        pair.finished = true)
 
 
 // synchronized(&var) { critical section }
 //
-// synchronized blocks construct a _Table_Locker on entry and destroy it
+// synchronized blocks construct a lock_guard on entry and destroy it
 // on exit.  This results in a locking of var for the body of the block.
-// It is also exception safe since destructon occurs when an exception
+// It is also exception safe since destruction occurs when an exception
 // causes the block to exit
 #define synchronized(ADDR)  \
-for(struct {const std::lock_guard<std::mutex> & lg; bool finished;} pair = \
-        {std::lock_guard<std::mutex>( \
+for(struct { \
+        const std::lock_guard<std::mutex> & lg; \
+        bool finished; \
+        } pair = \
+            { \
+            std::lock_guard<std::mutex>( \
                 *synclock::globalsynctable.get_lock_address( \
                     static_cast<void *>(ADDR))), \
-            false}; \
+            false }; \
         !pair.finished; \
         pair.finished = true)
 

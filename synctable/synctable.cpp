@@ -1,9 +1,6 @@
 #include "synctable.h"
 
 namespace synclock {
-
-    // SyncTable
-
     SyncTable::~SyncTable()
     {
         for (auto iter = this->locks_table.begin(),
@@ -30,18 +27,6 @@ namespace synclock {
 
         return var_lock;
     }
-
-
-    // _Table_Locker
-
-    _Table_Locker::_Table_Locker(SyncTable & sync_table, void * addr)
-        : var_lock_holder(*sync_table.get_lock_address(addr)),
-        finished(false)
-    { }
-
-
-    _Table_Locker::~_Table_Locker() { }
-
 
     // The Global SyncTable for synchronized() blocks
     SyncTable globalsynctable;
