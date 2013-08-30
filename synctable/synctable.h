@@ -26,8 +26,12 @@ namespace synclock{
     // This class is only for use by the synchronized/tablesynchronized blocks
     // and should not be used directly.  The name of the class is
     // intentionlly poorly formed.
+    // The lock_guard data member is created and destroyed along with the
+    // _Table_Locker object.  The finished data member is used by the for
+    // loop to signal completion.
     class _Table_Locker{
         private:
+            // holds the lock for the lifetime of the _Table_Locker
             std::lock_guard<std::mutex> var_lock_holder;
 
         public:
@@ -35,7 +39,6 @@ namespace synclock{
             _Table_Locker(SyncTable &sync_table, void * addr);
             _Table_Locker(const _Table_Locker &) = delete;
             _Table_Locker & operator=(const _Table_Locker &) = delete;
-            ~_Table_Locker();
     };
 
     // global table for use in synchronized blocks
@@ -52,11 +55,9 @@ namespace synclock{
 // this is provided so that groups of unrelated threads do not result in a
 // large, slow, globalsynctable.
 // using a value in a local SyncTable will NOT add it to tho global synctable
-// this is exception safe since the _Table_Locker releases the lock on
-// destruction
-
 #define tablesynchronized(TABLE, ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(TABLE, (void*)(ADDR)); \
+for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
+            TABLE, static_cast<void *>(ADDR)); \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 
@@ -66,9 +67,10 @@ for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(TABLE, (void*)(ADDR));
 // synchronized blocks construct a _Table_Locker on entry and destroy it
 // on exit.  This results in a locking of var for the body of the block.
 // It is also exception safe since destructon occurs when an exception
-// causes the block to exit
+// causes the block to exit, which releases the mutex.
 #define synchronized(ADDR)  \
-for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI(synclock::globalsynctable, static_cast<void *>(ADDR)); \
+for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
+            synclock::globalsynctable, static_cast<void *>(ADDR)); \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 

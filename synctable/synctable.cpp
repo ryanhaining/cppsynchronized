@@ -21,7 +21,7 @@ namespace synclock {
 
         auto itr = this->locks_table.find(addr);
         if (itr == this->locks_table.end()) {
-            // this is a new entry, in the table and a mutex must be created
+            // this is a new entry in the table, a mutex must be created
             itr = this->locks_table.insert(
                     std::make_pair(addr, new std::mutex)).first;
         }
@@ -38,10 +38,6 @@ namespace synclock {
         : var_lock_holder(*sync_table.get_lock_address(addr)),
         finished(false)
     { }
-
-
-    _Table_Locker::~_Table_Locker() { }
-
 
     // The Global SyncTable for synchronized() blocks
     SyncTable globalsynctable;
