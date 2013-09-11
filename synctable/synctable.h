@@ -38,17 +38,14 @@ namespace synclock{
 // destruction
 
 #define tablesynchronized(TABLE, ADDR)  \
-for(struct { \
-        const std::lock_guard<std::mutex> & lg; \
-        bool finished; \
-        } pair = \
-            { \
-            std::lock_guard<std::mutex>( \
-                *TABLE.get_lock_address( \
-                    static_cast<void *>(ADDR))), \
-            false }; \
-        !pair.finished; \
-        pair.finished = true)
+for(std::pair<std::lock_guard<std::mutex>, bool> pairwithREALLYlongname( \
+            std::piecewise_construct, \
+            std::make_tuple(std::ref( \
+                    *TABLE.get_lock_address( \
+                        static_cast<void *>(ADDR)))), \
+            std::make_tuple(false)); \
+        !pairwithREALLYlongname.second; \
+        pairwithREALLYlongname.second = true)
 
 
 // synchronized(&var) { critical section }
@@ -58,16 +55,13 @@ for(struct { \
 // It is also exception safe since destruction occurs when an exception
 // causes the block to exit
 #define synchronized(ADDR)  \
-for(struct { \
-        const std::lock_guard<std::mutex> & lg; \
-        bool finished; \
-        } pair = \
-            { \
-            std::lock_guard<std::mutex>( \
-                *synclock::globalsynctable.get_lock_address( \
-                    static_cast<void *>(ADDR))), \
-            false }; \
-        !pair.finished; \
-        pair.finished = true)
+    for(std::pair<std::lock_guard<std::mutex>, bool> pairwithREALLYlongname( \
+                std::piecewise_construct, \
+                std::make_tuple(std::ref( \
+                        *synclock::globalsynctable.get_lock_address( \
+                            static_cast<void *>(ADDR)))), \
+                std::make_tuple(false)); \
+            !pairwithREALLYlongname.second; \
+            pairwithREALLYlongname.second = true)
 
 #endif // __SYNCHRONIZER__H__
