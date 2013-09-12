@@ -12,11 +12,13 @@ synctable
 My favorite of the two implementations.  Allows for a synchronized block on
 any pointer using the syntax:
 
-    synchronized(&obj) {
-        // ... critical section
-    }
+```c++
+synchronized(&obj) {
+    // ... critical section
+}
+```
 
-Note that this could have been done using an object rather than a point with
+Note that this could have been done using an object rather than a pointer with
 something more resembling Java `synchronized(obj)` but it seemed to be more in
 the spirit of C++ to use the address.
 
