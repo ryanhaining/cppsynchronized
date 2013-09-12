@@ -31,11 +31,13 @@ An alternative use is a `tablesynchronized` block.  This requires the
 programmer to create a `SyncTable` and pass that as the first argument to
 `tablesynchronized`
 
-    SyncTable table;
-    // ... later on
-    tablesynchronized(table, &obj) {
-        // ... critical section
-    }
+```c++
+SyncTable table;
+// ... later on
+tablesynchronized(table, &obj) {
+    // ... critical section
+}
+```
 
 The idea here is a group of threads can use a local `SyncTable` rather than
 the global one to avoid contention on the global table.
@@ -46,14 +48,18 @@ lockable_objects
 A non-intrusive use of multiple inheritance.  A "lockable" version of any class
 can be instantiated with
 
-    Lockable<Object> lockable_object(/* Object ctor args */);
+```c++
+Lockable<Object> lockable_object(/* Object ctor args */);
+```
 
 Any lockable object can be used within a `synchronized` block.  This approach
 avoids the `SyncTable`s entirely
 
-    synchronized(lockabe_object){
-        // ... critical section
-    }
+```c++
+synchronized(lockable_object){
+    // ... critical section
+}
+```
 
 Can then be used without the overhead of a lookup for the mutex.  Additionally,
 no `&` is used for lockable objects.
