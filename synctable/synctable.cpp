@@ -6,11 +6,9 @@ namespace synclock {
 
     SyncTable::~SyncTable()
     {
-        for (auto iter = this->locks_table.begin(),
-                end = this->locks_table.end();
-                iter != end;
-                ++iter){
-            delete iter->second; 
+        // free all allocated mutexes
+        for (auto p : this->locks_table) {
+            delete p.second;
         }
     }
 
