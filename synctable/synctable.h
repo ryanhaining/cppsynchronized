@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <mutex>
+#include <functional>
 
 namespace synclock{
     class SyncTable{
