@@ -56,13 +56,13 @@ for(std::pair<std::lock_guard<std::mutex>, bool> pairwithREALLYlongname( \
 // It is also exception safe since destruction occurs when an exception
 // causes the block to exit
 #define synchronized(ADDR)  \
-    for(std::pair<std::lock_guard<std::mutex>, bool> pairwithREALLYlongname( \
-                std::piecewise_construct, \
-                std::make_tuple(std::ref( \
-                        *synclock::globalsynctable.get_lock_address( \
-                            static_cast<void *>(ADDR)))), \
-                std::make_tuple(false)); \
-            !pairwithREALLYlongname.second; \
-            pairwithREALLYlongname.second = true)
+    for (class : public std::lock_guard<std::mutex> { \
+            public: \
+                bool finished = false; \
+                using std::lock_guard<std::mutex>::lock_guard; \
+         } lg(*synclock::globalsynctable.get_lock_address( \
+                            static_cast<void *>(ADDR))); \
+            !lg.finished; \
+            lg.finished = true)
 
 #endif // __SYNCHRONIZER__H__
