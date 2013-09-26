@@ -60,9 +60,9 @@ for(std::pair<std::lock_guard<std::mutex>, bool> pairwithREALLYlongname( \
             public: \
                 bool finished = false; \
                 using std::lock_guard<std::mutex>::lock_guard; \
-         } lg(*synclock::globalsynctable.get_lock_address( \
+         } lgwithREALLYlongname(*synclock::globalsynctable.get_lock_address( \
                             static_cast<void *>(ADDR))); \
-            !lg.finished; \
-            lg.finished = true)
+            !lgwithREALLYlongname.finished; \
+            lgwithREALLYlongname.finished = true)
 
 #endif // __SYNCHRONIZER__H__
