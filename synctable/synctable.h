@@ -1,5 +1,5 @@
-#ifndef __SYNCHRONIZER__H__
-#define __SYNCHRONIZER__H__
+#ifndef SYNCHRONIZER__H__
+#define SYNCHRONIZER__H__
 
 #include <unordered_map>
 #include <mutex>
@@ -74,4 +74,4 @@ for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 
-#endif // __SYNCHRONIZER__H__
+#endif // #ifndef SYNCHRONIZER__H__
