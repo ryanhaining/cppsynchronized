@@ -13,7 +13,7 @@ namespace synclock{
             std::mutex * get_lock_address(void *addr);
 
         public:
-            SyncTable(){}
+            SyncTable() = default;
             // I might remove the delete's but it seems like a bad idea
             // to have the same entries in multiple tables.  I can't think
             // of why you would want that on purpose
@@ -31,18 +31,21 @@ namespace synclock{
     // loop to signal completion.
     class _Table_Locker{
         private:
+            //used by default by all threads
+            static SyncTable shared_table;
+
             // holds the lock for the lifetime of the _Table_Locker
             std::lock_guard<std::mutex> var_lock_holder;
 
         public:
             bool finished;
-            _Table_Locker(SyncTable &sync_table, void * addr);
+            _Table_Locker(void *addr,
+                    SyncTable& sync_table =_Table_Locker::shared_table);
             _Table_Locker(const _Table_Locker &) = delete;
             _Table_Locker & operator=(const _Table_Locker &) = delete;
     };
 
-    // global table for use in synchronized blocks
-    extern SyncTable globalsynctable;
+    // shared table for use in synchronized blocks
 }
 
 // the _Table_Lockers have a bunch of capital letters on the end of them
@@ -53,11 +56,11 @@ namespace synclock{
 // tablesynchronized block takes in a table and an address, locking the
 // address for the body of the block, but only in the given table
 // this is provided so that groups of unrelated threads do not result in a
-// large, slow, globalsynctable.
-// using a value in a local SyncTable will NOT add it to tho global synctable
+// large, slow, _Table_locker::shared_table.
+// using a value in a local SyncTable will NOT add it to tho shared synctable
 #define tablesynchronized(TABLE, ADDR)  \
 for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
-            TABLE, static_cast<void *>(ADDR)); \
+            static_cast<void *>(ADDR), TABLE); \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 
@@ -70,7 +73,7 @@ for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
 // causes the block to exit, which releases the mutex.
 #define synchronized(ADDR)  \
 for(synclock::_Table_Locker _table_locker_obj_ABCDEFAOEUI( \
-            synclock::globalsynctable, static_cast<void *>(ADDR)); \
+            static_cast<void *>(ADDR)); \
         !_table_locker_obj_ABCDEFAOEUI.finished; \
         _table_locker_obj_ABCDEFAOEUI.finished = true)
 
