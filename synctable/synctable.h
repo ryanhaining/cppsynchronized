@@ -8,9 +8,9 @@ namespace synclock{
     class SyncTable{
         friend class Table_Locker;
         private:
-            std::unordered_map<void *, std::mutex *> locks_table;
+            std::unordered_map<void *, std::mutex> locks_table;
             std::mutex table_lock; 
-            std::mutex * get_lock_address(void *addr);
+            std::mutex& get_lock(void *addr);
 
         public:
             SyncTable() = default;
@@ -19,7 +19,7 @@ namespace synclock{
             // of why you would want that on purpose
             SyncTable(const SyncTable &) = delete;
             SyncTable & operator=(const SyncTable &) = delete;
-            ~SyncTable();
+            ~SyncTable() = default;
  
     };
     
@@ -38,7 +38,7 @@ namespace synclock{
             std::lock_guard<std::mutex> var_lock_holder;
 
         public:
-            bool finished;
+            bool finished = false;
             Table_Locker(void *addr,
                     SyncTable& sync_table =Table_Locker::shared_table);
             Table_Locker(const Table_Locker &) = delete;
