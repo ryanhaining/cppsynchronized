@@ -10,16 +10,10 @@ namespace synclock {
     {
         std::lock_guard<std::mutex> lock(this->table_lock); // lock the table
 
-        auto itr = this->locks_table.find(addr);
-        if (itr == this->locks_table.end()) {
-            // this is a new entry in the table, a mutex must be created
-            itr = this->locks_table.emplace(
-                    std::piecewise_construct,
-                    std::make_tuple(addr),
-                    std::tuple<>{}).first;
-        }
-
-        return itr->second;
+        return this->locks_table.emplace(
+                std::piecewise_construct,
+                std::make_tuple(addr),
+                std::tuple<>{}).first->second;
     }
 
 
