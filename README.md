@@ -1,11 +1,11 @@
 CPP Synchronized
 ================
 
-A fun little project of mine.  When I first discovered Java's `synchronized`
-blocks, I was intrigued.  It's pretty easy to forget to unlock a mutex, and
-easier to follow the structure of a block.  I thought for a while about how I
-might implement something like this in C++11, and eventually accomplished this
-in two different ways.
+When I first discovered Java's `synchronized` blocks, I was intrigued.  It's
+pretty easy to forget to unlock a mutex, though RAII and unique_lock aid with
+this, and easy to follow the structure of a block.  I thought for a while about
+how I might implement something like this in C++11, and eventually accomplished
+this in two different ways.
 
 synctable
 ---------
@@ -25,7 +25,7 @@ the spirit of C++ to use the address.
 This is accomplished with a `#define`, and a `for` loop that initializes an
 object to lock and unlock a `std::mutex` on `for` entry/exit.  The mutexes
 themselves are stored in a global `std::unordered_map` of
-`void *` -> `mutex *`.
+`void *` to `mutex`.
 
 An alternative use is a `tablesynchronized` block.  This requires the
 programmer to create a `SyncTable` and pass that as the first argument to
