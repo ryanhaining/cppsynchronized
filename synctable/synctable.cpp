@@ -20,7 +20,7 @@ namespace synclock {
     // Table_Locker
 
     Table_Locker::Table_Locker(void *addr, SyncTable& sync_table)
-        : var_lock_holder(sync_table.get_lock(addr))
+        : var_lock_holder{sync_table.get_lock(addr)}
     { }
 
     SyncTable Table_Locker::shared_table{};
