@@ -17,8 +17,8 @@ namespace synclock{
             // I might remove the delete's but it seems like a bad idea
             // to have the same entries in multiple tables.  I can't think
             // of why you would want that on purpose
-            SyncTable(const SyncTable &) = delete;
-            SyncTable & operator=(const SyncTable &) = delete;
+            SyncTable(const SyncTable&) = delete;
+            SyncTable& operator=(const SyncTable&) = delete;
             ~SyncTable() = default;
  
     };
@@ -41,8 +41,8 @@ namespace synclock{
             bool finished = false;
             Table_Locker(void *addr,
                     SyncTable& sync_table =Table_Locker::shared_table);
-            Table_Locker(const Table_Locker &) = delete;
-            Table_Locker & operator=(const Table_Locker &) = delete;
+            Table_Locker(const Table_Locker&) = delete;
+            Table_Locker& operator=(const Table_Locker&) = delete;
     };
 
     // shared table for use in synchronized blocks
